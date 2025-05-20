@@ -99,3 +99,53 @@ char	*get_next_line(int fd)
 	backup = update_backup(backup);
 	return (line);
 }
+
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+#define BUFFER_SIZE 42  // Puedes cambiar este valor para probar diferentes tamaños
+
+int main(void)
+{
+    int     fd;
+    char    *line;
+    int     line_count;
+
+    // Prueba con un archivo de texto
+    fd = open("test.txt", O_RDONLY);
+    if (fd == -1)
+    {
+        printf("Error al abrir el archivo\n");
+        return (1);
+    }
+
+    line_count = 1;
+    while ((line = get_next_line(fd)) != NULL)
+    {
+        printf("Línea %d: %s", line_count, line);
+        free(line);
+        line_count++;
+    }
+    close(fd);
+
+    // Prueba con entrada estándar (stdin)
+    printf("\nEscribe algo (Ctrl+D para terminar):\n");
+    line_count = 1;
+    while ((line = get_next_line(STDIN_FILENO)) != NULL)
+    {
+        printf("Línea %d: %s", line_count, line);
+        free(line);
+        line_count++;
+    }
+
+    // Prueba con descriptor de archivo inválido
+    printf("\nProbando con fd inválido:\n");
+    line = get_next_line(-1);
+    if (line == NULL)
+        printf("Correcto: NULL para fd inválido\n");
+    else
+        printf("Error: debería ser NULL\n");
+
+    return (0);
+}
